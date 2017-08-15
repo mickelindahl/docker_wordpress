@@ -1,0 +1,13 @@
+# No html
+html/
+
+# No mysql
+mysql/
+
+# No backups
+backups/
+
+# No compose file
+docker-compose.yml
+
+

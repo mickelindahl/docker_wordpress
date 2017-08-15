@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+   {name}_db:
+     image: mysql:5.7
+     volumes:
+       - ./mysql/suntime:/var/lib/mysql
+     restart: always
+     environment:
+       MYSQL_ROOT_PASSWORD: {password}
+       MYSQL_DATABASE: wordpress
+       MYSQL_USER: wordpress
+       MYSQL_PASSWORD: {password}
+     network_mode: "bridge"
+   presensimpro_web:
+     links:
+       - {name}_db
+     image: wordpress:latest
+     volumes:
+       - ./html:/var/www/html
+      # - ./php:/usr
+       - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+     restart: always
+     environment:
+       VIRTUAL_HOST: {virtual_host}
+       WORDPRESS_DB_HOST: {name}_db:3306
+       WORDPRESS_DB_USER: wordpress
+       WORDPRESS_DB_NAME: wordpress
+       WORDPRESS_DB_PASSWORD: {password}
+     network_mode: "bridge"
+
