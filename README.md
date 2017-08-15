@@ -12,17 +12,19 @@ Create backup dr with todays date inside `backups/`
 mkdir backups/backup_{date}
 ```
 
-Backup mysql from container run
-
-```
-docker exec CONTAINER /usr/bin/mysqldump -u root --password=root DATABASE > /backups/backups_{date}/backup.sql
-```
-   
 Copy hmtl
 
 ```
 cp -R html backups/backups_{date}
 ```
+
+Backup mysql from container run
+
+```
+cd backups/backup_{date}
+docker exec {container id} /usr/bin/mysqldump -u {database user} --password={database password} {password} > backup.sql
+```
+   
 
 Done!
 
