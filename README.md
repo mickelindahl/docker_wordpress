@@ -1,5 +1,25 @@
 # Docker wordpress
 
+# Installation
+
+Run `generate_compose_file.sh` 
+
+Either with port mapp 
+```
+generate_docker_compose_file.sh test secret
+```
+Or with vitual host
+```
+generate_docker_compose_file.sh test secret a.domain.com
+```
+
+Then build and start
+```
+docker up-d
+```
+
+Done!
+
 # Backup
 
 Create directory backups if not already done

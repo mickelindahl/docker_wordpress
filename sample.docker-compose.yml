@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-   {name}_db:
+   {name}-db:
      image: mysql:5.7
      volumes:
        - ./mysql/suntime:/var/lib/mysql
@@ -12,20 +12,35 @@ services:
        MYSQL_USER: wordpress
        MYSQL_PASSWORD: {password}
      network_mode: "bridge"
-   presensimpro_web:
+   {name}-web:
      links:
-       - {name}_db
+       - {name}-db
      image: wordpress:latest
      volumes:
        - ./html:/var/www/html
       # - ./php:/usr
        - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
      restart: always
+     {ports-web}
+        {port-mapping-web}
      environment:
-       VIRTUAL_HOST: {virtual_host}
-       WORDPRESS_DB_HOST: {name}_db:3306
+       {virtual-host}
+       WORDPRESS_DB_HOST: {name}-db:3306
        WORDPRESS_DB_USER: wordpress
        WORDPRESS_DB_NAME: wordpress
        WORDPRESS_DB_PASSWORD: {password}
      network_mode: "bridge"
-
+   {name}-phpadmin:
+     image: phpmyadmin/phpmyadmin
+     # image: corbinu/docker-phpmyadmin
+     links:
+       - {name}-db:mysql
+     ports:
+       - 8181:80
+     environment:
+       PMA_HOST: {name}-db
+       PMA_PORT: 3306
+       PMA_USER: wordpress
+       PMA_PASSWORD: {password}
+     volumes:
+      - /sessions
