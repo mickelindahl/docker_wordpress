@@ -2,29 +2,14 @@
 
 # Backup
 
-Create directory backups if not already done
-```
-mkdir backups
-```
+# Docker wordpress
 
-Create backup dr with todays date inside `backups/`
-```
-mkdir backups/backup_{date}
-```
+# Backup
 
-Copy hmtl
-
+Run
 ```
-cp -R html backups/backups_{date}
+sudo ./backup.sh {container-id} {db-name} {'db-user} {db-pass}          
 ```
-
-Backup mysql from container run
-
-```
-cd backups/backup_{date}
-docker exec {container id} /usr/bin/mysqldump -u {database user} --password={database password} {password} > backup.sql
-```
-   
 
 Done!
 
