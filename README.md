@@ -22,30 +22,29 @@ Done!
 
 # Backup
 
-Create directory backups if not already done
-```
-mkdir backups
-```
+## Manual
 
-Create backup dr with todays date inside `backups/`
+Run
 ```
-mkdir backups/backup_{date}
+sudo ./backup.sh {container-id} {db-name} {'db-user} {db-pass}          
 ```
-
-Copy hmtl
-
-```
-cp -R html backups/backups_{date}
-```
-
-Backup mysql from container run
-
-```
-cd backups/backup_{date}
-docker exec {container id} /usr/bin/mysqldump -u {database user} --password={database password} {password} > backup.sql
-```
-   
 
 Done!
 
+## Cron
+
+Setup a cronjob that backups day 1,7,14,21, and 28 of the month
+
+Run 
+```
+sudo su
+crontab -e
+```
+Pase
+```
+00 01 1,7,14,21,28 * * {source-root}/backup.sh {container-id} {db-name} {'db-user} {db-pass} `date +%d`
+```
+Save
+
+Done!
 
