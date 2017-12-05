@@ -1,6 +1,7 @@
 # No html
 html/
 html-orginal/
+html*
 
 # No mysql
 mysql/
