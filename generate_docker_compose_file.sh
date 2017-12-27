@@ -1,9 +1,12 @@
 #:/bin/bash
 
 # Example:
-# Woth port mapping
+# Port mapping
 # generate_docker_compose_file.sh test secret
-# or with vituaal host
+# MD5=($(md5sum  <<<`date +%s`))
+# generate_docker_compose_file.sh test $MD5
+
+# Virtual host
 # generate_docker_compose_file.sh test secret a.domain.com
 
 

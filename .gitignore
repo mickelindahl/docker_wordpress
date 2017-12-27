@@ -15,3 +15,5 @@ docker-compose.yml
 # No migration
 migration/
 
+# No sites
+sites
