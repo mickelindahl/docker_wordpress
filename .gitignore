@@ -1,5 +1,7 @@
 # No html
 html/
+html-orginal/
+html*
 
 # No mysql
 mysql/
@@ -11,4 +13,11 @@ migrations/
 # No compose file
 docker-compose.yml
 
+# No migration
+migration/
 
+# No sites
+sites
+
+# No environment
+.env

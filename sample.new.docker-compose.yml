@@ -1,0 +1,62 @@
+version: '3'
+
+services:
+   presens-test-db:
+     image: mysql:5.7
+     volumes:
+       - ./mysql/suntime:/var/lib/mysql
+     restart: always
+     environment:
+       MYSQL_ROOT_PASSWORD: secret
+       MYSQL_DATABASE: wordpress
+       MYSQL_USER: wordpress
+       MYSQL_PASSWORD: secret
+     #network_mode: "bridge"
+     networks:
+      - back
+   presens-test-web:
+     links:
+       - presens-test-db
+     image: wordpress:latest
+     volumes:
+       - ./html:/var/www/html
+      # - ./php:/usr
+       - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+     restart: always
+     ports:
+        - 8080:80
+     environment:
+       #VIRTUAL_HOST:
+       WORDPRESS_DB_HOST: presens-test-db:3306
+       WORDPRESS_DB_USER: wordpress
+       WORDPRESS_DB_NAME: wordpress
+       WORDPRESS_DB_PASSWORD: secret
+       REMOTE_ADDR: http://127.0.0.1:8080
+     #network_mode: "bridge"
+     networks:
+      - back
+      - front
+   presens-test-phpadmin:
+     image: phpmyadmin/phpmyadmin
+     # image: corbinu/docker-phpmyadmin
+     #links:
+     #  - presens-test-db
+ 
+     networks:
+      - back
+     ports:
+       - 8181:80
+     environment:
+      MYSQL_USERNAME: wordpress
+      MYSQL_ROOT_PASSWORD: secret
+      #MYSQL_PASSWORD: secret
+      #PMA_ARBITRARY: 1
+      PMA_HOST: presens-test-db
+      #PMA_PORT: 3306
+      #PMA_USER: admin
+      #PMA_PASSWORD: secret
+     volumes:
+      - /sessions
+networks:
+  front:
+  back:
