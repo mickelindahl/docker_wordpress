@@ -1,47 +1,54 @@
 #!/bin/bash
 
-USER=$1
-DOMAIN=$2
-BACKUPDIR=$3
+export $(cat .env | xargs)
 
-arr=$(echo $BACKUPDIR | tr "/" "\n")
+for arg in USER DOMAIN APP_PATH CONTAINER_NAME_WEB NAME; do
 
-ARRAY=()
-for x in $arr
-do
-    #echo "\"$x\""
-    #echo $x
-    ARRAY+=($x)
+     echo $arg
+
+     if [ "${!arg}" = "" ];then
+         echo "Missing env $arg"
+         exit 1
+     fi
+
 done
 
-NAME=${ARRAY[-1]}
-SITE=sites/$NAME
-HOST=localhost
+SUFFIX=`date +%y%m%d`
+PASSWORD=secret
 WP_CONFIG=html/wp-config.php
+
+BACKUP_NAME="migration-$SUFFIX"
+BACKUP_PATH=$APP_PATH/migrations/$BACKUP_NAME
+SITE=sites/$NAME-$BACKUP_NAME
+#HOST=localhost
+
+cp sample.migration-backup.sh migration-backup.sh
+sed -i "s#{name}#$CONTAINER_NAME_WEB#g" migration-backup.sh
+sed -i "s#{backup-name}#$BACKUP_NAME#g" migration-backup.sh
+
+read -p "Create backup (Y/n)?" choice
+case $choice in
+       Y|y ) scp backup.sh $USER@$DOMAIN:$APP_PATH/migrations/migration-backup.sh && ssh $USER@$DOMAIN "cd $APP_PATH/migrations && pwd && ls -la && ./migration-backup.sh";;
+       * ) echo "Skipping";;
+esac
 
 echo "Create directory "$SITE
 mkdir -p $SITE
 
-if [ ! -f $SITE/html.tar.gz ]; then
+read -p "Copy files from $DOMAIN:$BACKUP_PATH (Y/n)?" choice
+case $choice in
+       Y|y ) scp -r $USER@$DOMAIN:BACKUP_PATH/ $SITE/;;
+       * ) echo "Skipping";;
+esac
 
-   echo "Copy files from $DOMAIN:$BACKUPDIR to $SITE"
-   read -p "Press enter to continue"
-   scp -r $USER@$DOMAIN:$BACKUPDIR/* $SITE/
+echo "Generate docker file"
+read -p "Press enter to continue"
+./generate_docker_compose_file.sh $NAME $PASSWORD
 
-fi
+echo "Move docker file"
+read -p "Press enter to continue"
+mv docker-compose.yml $SITE/docker-compose.yml
 
-
-if [ ! -f $SITE/docker-compose.yml ]; then
-
-   echo "Generate docker file"
-   read -p "Press enter to continue"
-   ./generate_docker_compose_file.sh $NAME secret 
-
-   echo "Move docker file"
-   read -p "Press enter to continue"
-   mv docker-compose.yml $SITE/docker-compose.yml
-
-fi
 
 echo "Enter "$SITE
 cd $SITE
@@ -97,4 +104,13 @@ sed -i "s/$TMP/define('DB_PASSWORD', '$DB_PASS' );/g" $WP_CONFIG
 
 TMP=`grep -r "define('DB_HOST'" $WP_CONFIG`
 sed -i "s/$TMP/define('DB_HOST', '$DB_HOST' );/g" $WP_CONFIG
+
+echo "Wait 10 seconds"
+sleep 10
+
+echo "Add backup sql to db"
+read -p "Press enter to continue"
+CONTAINER_ID=`docker ps -aqf "name=$NAME_db"`
+cat backup.sql | docker exec -i CONTAINER_ID /usr/bin/mysql -u $DB_USER --password=$DB_PASS $DB_NAME
+
 # sed -i "s/$TMP/define('DB_HOST', 'localhost:3007' );/" > $WP_CONFIG

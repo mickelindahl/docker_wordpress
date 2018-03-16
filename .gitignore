@@ -17,3 +17,6 @@ migration/
 
 # No sites
 sites
+
+# No environment
+.env

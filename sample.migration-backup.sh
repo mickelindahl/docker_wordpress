@@ -6,8 +6,8 @@
 # backup.sh container-id/name suffix
 
 
-CONTAINER_ID=`docker ps -aqf "name=presensimpro_presensimpro_web_1"`
-NAME=presensimpro_presensimpro_web_1
+CONTAINER_ID=`docker ps -aqf "name={name}"`
+NAME={name}
 
 TMP=`grep -r WORDPRESS_DB_PASSWORD docker-compose.yml`
 DB_PASS=`sed s/'WORDPRESS_DB_PASSWORD: '//g <<< $TMP`
@@ -33,7 +33,7 @@ echo "Enter script dir"
 cd $(dirname $0)
 echo $(pwd)
 
-BACKUP_DIR=$(pwd)/"backups/backup-180211"
+BACKUP_DIR=$(pwd)/{backup-name}"
 
 echo "Backupdir: $BACKUP_DIR"
 if [ -d "$BACKUP_DIR" ]; then
@@ -42,7 +42,6 @@ if [ -d "$BACKUP_DIR" ]; then
   rm -r ${BACKUP_DIR}
 
 fi
-
 
 echo "Create directory "${BACKUP_DIR}
 mkdir -p backups
