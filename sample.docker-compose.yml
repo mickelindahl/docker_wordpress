@@ -12,7 +12,9 @@ services:
        MYSQL_DATABASE: wordpress
        MYSQL_USER: wordpress
        MYSQL_PASSWORD: {password}
-     network_mode: "bridge"
+     networks:
+        - nginx
+
    {name}-web:
      links:
        - {name}-db
@@ -32,7 +34,9 @@ services:
        WORDPRESS_DB_NAME: wordpress
        WORDPRESS_DB_PASSWORD: {password}
        REMOTE_ADDR: http://127.0.0.1:8080/
-     network_mode: "bridge"
+     networks:
+        - nginx
+
    {name}-phpadmin:
      image: phpmyadmin/phpmyadmin
      container_name: {name}-phpadmin
@@ -48,4 +52,9 @@ services:
        PMA_PASSWORD: {password}
      volumes:
       - /sessions
-     network_mode: "bridge"
+     networks:
+        - nginx
+
+networks:
+  nginx:
+     external: true

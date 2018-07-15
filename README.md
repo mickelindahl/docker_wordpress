@@ -59,49 +59,24 @@ OBS! Need to restart computer for this to take effect
 
 Extract html and database.sql. Se create backup.
 
-Copy over html directory and backup.sql
+Run migration
 ```
-scp -r {user}@{domain}:{backup-dir} 
+./migrate.sh
 
 ```
+Gå till
+```
+{site-url}/wp-admin
 
-Eter backup dir and extract hmtl
 ```
-tar -zxvf html.tar.gz 
-```
+Logga in och gå till **verkty**->**Update url** and run url update on site. Replace old url with new url
 
-Change owner
-```
-chown -R www-data:www-data html
-```
-
-Edit wp-config.php
-```
-cd hmtl
-nano wp-config.php
-``` 
-Set DB_USER, DB_PASSWORD and DB_HOST 
-These are found in the docer-compose.yml file. 
-DB_HOST is  the mysql databes  service name in docker-compose file)
+Gå till **Inställningar**->**permalänkar** and set **Vanliga inställningar** to **Enkel**
+Then switch it back to what it was before. This is a fix so that /{url} will be find ([reference](https://www.youtube.com/watch?v=HedHYNpqoOg))
 
 
-Copy hmtl to wordpress soruces dir
-```
-cp {backup-root}/html {source-root}/html
-```
 
-Restore db
-```
-cd {backup-root}
-cat backup.sql | docker exec -i {container-id} /usr/bin/mysql -u {db-user} --password={db-pass} {db-name}
-```
-
-edit function.php, add emediatly after "<?php" line
-```
-update_option( 'siteurl', 'http://127.0.0.1:8080/' );
-update_option( 'home', 'http://127.0.0.1:8080/' );
-```
-
+## Install theme from git repository
 Go to html/wp-content/themes
 Clone you code for theme
 Move old theme
