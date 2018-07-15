@@ -74,6 +74,7 @@ Logga in och gå till **verkty**->**Update url** and run url update on site. Rep
 Gå till **Inställningar**->**permalänkar** and set **Vanliga inställningar** to **Enkel**
 Then switch it back to what it was before. This is a fix so that /{url} will be find ([reference](https://www.youtube.com/watch?v=HedHYNpqoOg))
 
+Om du har woocomerce gå till **Woocomerce**->**Inställningar**->**kassa** och clicka bort att https krävs
 
 
 ## Install theme from git repository
