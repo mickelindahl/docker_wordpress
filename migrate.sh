@@ -134,6 +134,9 @@ sudo sed -i "s/$TMP/define('DB_HOST', '$DB_HOST' );/g" $WP_CONFIG
 echo "Ensure www-data is owner"
 sudo chown -R www-data:www-data html
 
+echo "Make wp-content editable"
+#sudo chmod -R 777 ./html/wp-content 
+
 docker stop presens-db presens-web presens-phpadmin
 docker rm -f presens-db presens-web presens-phpadmin
 #docker-compose rm -f
@@ -172,18 +175,18 @@ cmds=(\
   "UPDATE wp_options SET option_value = replace(option_value, 'http$OLD_URL', 'http$NEW_URL') WHERE option_name = 'home' OR option_name = 'siteurl';" \
 
   "UPDATE wp_posts SET guid = replace(guid, 'https$OLD_URL','http$OLD_URL');" \
-  "UPDATE wp_posts SET guid = replace(guid, '$OLD_URL','$NEW_URL');" \
+  "UPDATE wp_posts SET guid = replace(guid, 'http$OLD_URL','http$NEW_URL');" \
 
   "UPDATE wp_posts SET post_content = replace(post_content, 'https$OLD_URL', 'http$OLD_URL');" \
-  "UPDATE wp_posts SET post_content = replace(post_content, '$OLD_URL', '$NEW_URL');" \
+  "UPDATE wp_posts SET post_content = replace(post_content, 'http$OLD_URL', 'http$NEW_URL');" \
 
   "UPDATE wp_postmeta SET meta_value = replace(meta_value,'https$OLD_URL','http$OLD_URL');" \
-  "UPDATE wp_postmeta SET meta_value = replace(meta_value,'$OLD_URL','$NEW_URL');" \
+  "UPDATE wp_postmeta SET meta_value = replace(meta_value,'http$OLD_URL','http$NEW_URL');" \
 )
 
 for i in "${cmds[@]}"; do
     echo "$i"	
-    #docker exec -i $CONTAINER_ID /usr/bin/mysql -u $DB_USER --password=$DB_PASS  $DB_NAME <<< "$i"
+    docker exec -i $CONTAINER_ID /usr/bin/mysql -u $DB_USER --password=$DB_PASS  $DB_NAME <<< "$i"
 
 done
 

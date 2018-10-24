@@ -57,18 +57,19 @@ sudo usermod -a -G www-data mikael
 ```
 OBS! Need to restart computer for this to take effect
 
-Extract html and database.sql. Se create backup.
-
-Run migration
+Run migration and follow instructions
 ```
 ./migrate.sh
 
 ```
-Gå till
+Gå till 
 ```
 {site-url}/wp-admin
 
 ```
+
+WARNING!!! Make sure you are att new_url and is not modifying the production site
+
 Logga in och gå till **verkty**->**Update url** and run url update on site. Replace old url with new url
 
 Gå till **Inställningar**->**permalänkar** and set **Vanliga inställningar** to **Enkel**

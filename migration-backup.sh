@@ -35,7 +35,7 @@ echo "Enter script dir"
 cd $(dirname $0)
 echo $(pwd)
 
-BACKUP_DIR="$(pwd)/migration-180715"
+BACKUP_DIR="$(pwd)/migration-180916"
 
 echo "Backupdir: $BACKUP_DIR"
 if [ -d "$BACKUP_DIR" ]; then
