@@ -35,7 +35,8 @@ echo "Enter script dir"
 cd $(dirname $0)
 echo $(pwd)
 
-BACKUP_DIR="$(pwd)/migration-180916"
+SUFFIX=`date +%y%m%d`
+BACKUP_DIR=$(pwd)/"backups/migration-"${SUFFIX}
 
 echo "Backupdir: $BACKUP_DIR"
 if [ -d "$BACKUP_DIR" ]; then
@@ -67,8 +68,9 @@ rm -r ${BACKUP_DIR}/html
 
 echo "Backup mysql from container"
 #read -p "Press enter to continue"
-#docker exec ${NAME} sh -c 'exec mysqldump --all-databases -uroot -p"$MYSQL_ROOT_PASSWORD"' > ${BACKUP_DIR}/backup.sql
-docker exec ${CONTAINER_ID_DB} /usr/bin/mysqldump -u ${DB_USER} --password=${DB_PASS} ${DB_NAME} > ${BACKUP_DIR}/backup.sql
+
+#docker exec ${CONTAINER_ID} sh -c 'exec mysqldump --all-databases -uroot -p"$MYSQL_ROOT_PASSWORD"' > ${BACKUP_DIR}/backup.sql
+docker exec ${CONTAINER_ID} /usr/bin/mysqldump -u ${DB_USER} --password=${DB_PASS} ${DB_NAME} > ${BACKUP_DIR}/backup.sql
 
 echo "Set current user as owner"
 chown -R ${USER}:${USER} ${BACKUP_DIR}
