@@ -3,7 +3,7 @@ version: '3'
 services:
    {name}-db:
      image: mysql:5.7
-     name: {name}-db
+     container_name: {name}-db
      volumes:
        - ./mysql/suntime:/var/lib/mysql
      restart: always
@@ -16,8 +16,8 @@ services:
    {name}-web:
      links:
        - {name}-db
-     image: wordpress:latest
-     name: {name}-web
+     image: wordpress:4.8
+     container_name: {name}-web
      volumes:
        - ./html:/var/www/html
       # - ./php:/usr
@@ -35,10 +35,10 @@ services:
      network_mode: "bridge"
    {name}-phpadmin:
      image: phpmyadmin/phpmyadmin
-     name: {name}-phpadmin
+     container_name: {name}-phpadmin
      # image: corbinu/docker-phpmyadmin
      links:
-       - {name}-db:mysql
+       - {name}-db
      ports:
        - 8181:80
      environment:
@@ -48,3 +48,4 @@ services:
        PMA_PASSWORD: {password}
      volumes:
       - /sessions
+     network_mode: "bridge"
