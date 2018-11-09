@@ -1,8 +1,14 @@
 # Docker wordpress
 
+Install wordpress instance dependent on git branch master | develop. 
+
 ## Installation
 
-Run `generate_compose_file.sh` 
+Run `cp sample.env .env`
+
+Open `.env` and set environment variables. 
+
+Run `install.sh` 
 
 Either with port mapp 
 ```

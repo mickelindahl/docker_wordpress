@@ -1,4 +1,4 @@
-#!/bin/bash
+##!/bin/bash
 
 ##################################################################
 # Purpose: Assert variable is in list
@@ -11,12 +11,12 @@ assertAllowed() {
   allowed=$1
   var=$2
 
-  contains=$([[ $allowed =~ (^|[[:space:]])$var($|[[:space:]]) ]] && echo "0" || echo "1"))
+  contains=$([[ $allowed =~ (^|[[:space:]])$var($|[[:space:]]) ]] && echo "0" || echo "1")
 
-  if [ "$contains" = "0" ];then
-       echo "Not allowed param, variable needs to be on of $alllowed"
-       exit(1)
-   fi
+  if [[ "$contains" = "0" ]];then
+       echo "Not allowed param, variable needs to be on of $allowed"
+       exit 1
+  fi
 }
 
 ##################################################################
@@ -26,10 +26,10 @@ assertAllowed() {
 ##################################################################
 assertContainer(){
 
-    if [ ! "$(docker ps -a | grep $1)" ];then
+    if [[ ! "$(docker ps -a | grep $1)" ]];then
        echo "Missing container $1"
-       exit(1)
-    if
+       exit 1
+    fi
 }
 
 ##################################################################
@@ -43,7 +43,7 @@ assertExists(){
 
        echo "Checking for existance $arg"
 
-       if [ "${!arg}" = "" ];then
+       if [[ "${!arg}" = "" ]];then
            echo "Missing env $arg"
            exit 1
        fi
@@ -58,7 +58,7 @@ assertExists(){
 ##################################################################
 asserNotEqual(){
 
-   if [ "$1" = "$2" ];then
+   if [[ "$1" = "$2" ]];then
 
        echo "Not allowed variables equal $1=$2"
        exit 1
@@ -73,7 +73,7 @@ asserNotEqual(){
 # Arguments:
 #   $1 -> Container name
 #   $2 -> Variable to get DB_NAME or DB_HOST or DB_PASSWORD
-# Echo: Value of credential 
+# Echo: Value of credential
 ##################################################################
 getCredentialWpConfig(){
 
@@ -89,7 +89,7 @@ getCredentialWpConfig(){
 }
 
 ##################################################################
-# Purpose: Replace one url in wordpress db with another url 
+# Purpose: Replace one url in wordpress db with another url
 # Arguments:
 #   $1 -> container with wordpress db
 #   $2 -> wordpress db user
@@ -185,12 +185,13 @@ dbMasterToDevelop(){
    # Make user migration is neccesary
    SKIP=""
    read -p "Add backup to db [Press enter to continue]"
-   cat $BACKUP_FILE | docker exec -it $DEVELOP_DB /usr/bin/mysql -u $DEVELOP_DB_USER --password=$DEVELOP_DB_PASS $DEVELOP_DB_NAME;;
+   cat $BACKUP_FILE | docker exec -it $DEVELOP_DB /usr/bin/mysql -u $DEVELOP_DB_USER --password=$DEVELOP_DB_PASS $DEVELOP_DB_NAME
 
    echo "Removing $BACKUP_FILE"
    rm $BACKUP_FILE
 
    replaceUrlInDb $DEVELOP_DB $DEVELOP_DB_USER $DEVELOP_DB_PASS $DEVELOP_DB_NAME $OLD_URL $NEW_URL
+}
 
 ##################################################################
 # Purpose: Migrate database for wordpress instance in master
@@ -198,8 +199,8 @@ dbMasterToDevelop(){
 # Arguments:
 #   $1 -> Base name of wordpress instance (-master or -develop is
 #         added depending on branch)
-#   $2 -> Url of wordpress site in master container
-#   $3 -> Url of wordpress site in develop container
+#   $2 -> Url of wordpress site in develop container
+#   $3 -> Url of wordpress site in master container
 #   $4 -> Wordpress database user develop
 #   $5 -> Wordpress database password develop
 #   $6 -> Wordpress database name develop
@@ -246,5 +247,23 @@ htmlMasterToDevelop(){
 
 }
 
+##################################################################
+# Replace env in a file {ENV_NAME} woth value of ENV_NAME in shell
+# Arguments:
+#   $1 -> Array with environment variables
+#   $2 -> File name to replace variables in
+##################################################################
+replace(){
 
+   echo ${1//,/ }
 
+   arr=$(echo ${1//,/ })
+   file=$2
+
+   for var in ${arr}; do
+
+       val=$(echo $(eval echo \$$var))
+       sed -i "s#{$var}#${val}#g" docker-compose.yml
+
+   done
+}

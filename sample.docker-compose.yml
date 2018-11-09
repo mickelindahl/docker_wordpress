@@ -1,39 +1,40 @@
 version: '3'
 
 services:
-   {NAME}-db:
+   {CONTAINER_DB}:
      image: mysql:5.7
-     container_name: {NAME}-db
+     container_name: {CONTAINER_DB}
      volumes:
        - ./mysql/suntime:/var/lib/mysql
      restart: always
      environment:
-       MYSQL_ROOT_PASSWORD: {MYSQL_ROOT_PASSWORD}
-       MYSQL_DATABASE: wordpress
-       MYSQL_USER: wordpress
+       MYSQL_ROOT_PASSWORD: {MYSQL_PASSWORD}
+       MYSQL_DATABASE: {MYSQL_NAME}
+       MYSQL_USER: {MYSQL_USER}
        MYSQL_PASSWORD: {MYSQL_PASSWORD}
      networks:
-        - nginx
-   {NAME}-web:
+        - {NETWORK}
+   {CONTAINER_WEB}:
      links:
-       - {NAME}-db
+       - {CONTAINER_DB}
      image: wordpress:4.9
-     container_name: {NAME}-web
+     container_name: {CONTAINER_WEB}
      volumes:
        - ./html:/var/www/html
        - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
      restart: always
+     {PORT_WEB}
+        {PORT_MAPPING_WEB}
      environment:
-       VIRTUAL_HOST: {VIRTUAL_HOST}
-       WORDPRESS_DB_HOST: {NAME}-db:3306
+       WORDPRESS_DB_HOST: {CONTAINER_DB}:3306
        WORDPRESS_DB_USER: wordpress
        WORDPRESS_DB_NAME: wordpress
-       WORDPRESS_DB_PASSWORD: {WORDPRESS_DB_PASSWORD}
-       REMOTE_ADDR: http://127.0.0.1:8080/
+       WORDPRESS_DB_PASSWORD: {MYSQL_PASSWORD}
+       {VIRTUAL_HOST}
      networks:
-        - nginx
+        - {NETWORK}
 
 networks:
-  nginx:
+  {NETWORK}:
      external: true
 
