@@ -13,7 +13,7 @@
 NAME=$1
 PASSWORD=$2
 
-cp sample.docker-compose.yml docker-compose.yml
+cp sample.migration.docker-compose.yml docker-compose.yml
 
 sed -i "s#{name}#"${NAME}"#g" docker-compose.yml 
 sed -i "s#{password}#"${PASSWORD}"#g" docker-compose.yml 

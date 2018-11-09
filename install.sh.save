@@ -1,0 +1,70 @@
+#!/bin/bash
+
+if [ ! -f .env ]; then
+
+   echo "Missing .env file"
+   exit
+
+fi
+
+export $(cat .env | xargs)
+
+for arg in VIRTUAL_HOST MYSQL_PASSWORD; do
+
+     echo $arg
+
+     if [ "${!arg}" = "" ];then
+         echo "Missing env $arg"
+         exit 1
+     fi
+
+done
+
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+
+if [ "${BRANCH}" = "develop" ];then
+
+   read -p "Clone production database (Y/n)?" choice
+   case $choice in
+       Y|y ) ./clone-production-db.sh;;
+       * ) echo "Skipping";;
+   esac
+fi
+
+
+#NETWORK=$NETWORK-$BRANCH
+
+NAME=presensimpro-$BRANCH
+cp sample.docker-compose.yml docker-compose.yml
+
+MYSQL_ROOT_PASSWORD=$MYSQL_PASSWORD
+WORDPRESS_DB_PASSWORD=$MYSQL_PASSWORD
+
+declare -a arr=(\
+  "NAME" \
+  "VIRTUAL_HOST" \
+  "MYSQL_ROOT_PASSWORD" \
+  "MYSQL_PASSWORD" \
+  "WORDPRESS_DB_PASSWORD"
+)
+
+
+for var in "${arr[@]}"; do
+
+   sed -i $(eval echo "s#{$var}#\$$var#g") docker-compose.yml
+
+done
+
+docker rmi $(docker images --quiet --filter "dangling=true")
+
+docker-compose stop
+docker-compose rm -f
+
+docker-compose build
+docker-compose --compatibility up -d
+
+echo ""
+echo "Done!"
+

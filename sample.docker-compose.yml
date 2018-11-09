@@ -1,51 +1,39 @@
 version: '3'
 
 services:
-   {name}-db:
+   {NAME}-db:
      image: mysql:5.7
-     container_name: {name}-db
+     container_name: {NAME}-db
      volumes:
        - ./mysql/suntime:/var/lib/mysql
      restart: always
      environment:
-       MYSQL_ROOT_PASSWORD: {password}
+       MYSQL_ROOT_PASSWORD: {MYSQL_ROOT_PASSWORD}
        MYSQL_DATABASE: wordpress
        MYSQL_USER: wordpress
-       MYSQL_PASSWORD: {password}
-     network_mode: "bridge"
-   {name}-web:
+       MYSQL_PASSWORD: {MYSQL_PASSWORD}
+     networks:
+        - nginx
+   {NAME}-web:
      links:
-       - {name}-db
-     image: wordpress:4.8
-     container_name: {name}-web
+       - {NAME}-db
+     image: wordpress:4.9
+     container_name: {NAME}-web
      volumes:
        - ./html:/var/www/html
-      # - ./php:/usr
        - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
      restart: always
-     {ports-web}
-        {port-mapping-web}
      environment:
-       {virtual-host}
-       WORDPRESS_DB_HOST: {name}-db:3306
+       VIRTUAL_HOST: {VIRTUAL_HOST}
+       WORDPRESS_DB_HOST: {NAME}-db:3306
        WORDPRESS_DB_USER: wordpress
        WORDPRESS_DB_NAME: wordpress
-       WORDPRESS_DB_PASSWORD: {password}
+       WORDPRESS_DB_PASSWORD: {WORDPRESS_DB_PASSWORD}
        REMOTE_ADDR: http://127.0.0.1:8080/
-     network_mode: "bridge"
-   {name}-phpadmin:
-     image: phpmyadmin/phpmyadmin
-     container_name: {name}-phpadmin
-     # image: corbinu/docker-phpmyadmin
-     links:
-       - {name}-db
-     ports:
-       - 8181:80
-     environment:
-       PMA_HOST: {name}-db
-       PMA_PORT: 3306
-       PMA_USER: wordpress
-       PMA_PASSWORD: {password}
-     volumes:
-      - /sessions
-     network_mode: "bridge"
+     networks:
+        - nginx
+
+networks:
+  nginx:
+     external: true
+
