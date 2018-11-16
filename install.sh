@@ -45,6 +45,7 @@ elif [[ "${HOST_TYPE}" = "virtual-host" ]]; then
 
     PORT_WEB=""
     PORT_MAPPING_WEB=""
+    VIRTUAL_HOST="VIRTUAL_HOST: $VIRTUAL_HOST"
 
 else
 
@@ -70,6 +71,7 @@ cp sample.docker-compose.yml docker-compose.yml
 replace "CONTAINER_DB,CONTAINER_WEB,VIRTUAL_HOST,MYSQL_NAME,MYSQL_USER,MYSQL_PASSWORD" docker-compose.yml
 replace "MYSQL_HOST,NETWORK,PORT_WEB,PORT_MAPPING_WEB,VIRTUAL_HOST" docker-compose.yml
 
+
 docker rmi $(docker images --quiet --filter "dangling=true")
 
 docker-compose stop
@@ -79,15 +81,6 @@ docker-compose build
 docker-compose --compatibility up -d
 echo "Wait 10 seconds for db to start"
 sleep 10
-
-#   $1 -> Container master web
-#   $2 -> Container master db
-#   $3 -> Container develop db
-#   $4 -> Url of wordpress site in master container
-#   $5 -> Url of wordpress site in develop container
-#   $6 -> Wordpress database user develop
-#   $7 -> Wordpress database password develop
-#   $8 -> Wordpress database name develop
 
 if [[ "${BRANCH}" = "develop" ]];then
     read -p "Clone production database to develoo (Y/n)?" choice
