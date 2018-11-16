@@ -13,16 +13,27 @@ fi
 # Add .env variables
 export $(cat .env | xargs)
 
-assertAllowed HOST_TYPE MYSQL_PASSWORD NAME NETWORK VIRTUAL_HOST PORT
-
+assertAllowed HOST_TYPE IS_HTTPS MYSQL_PASSWORD NAME NETWORK VIRTUAL_HOST PORT
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
-CONTAINER_PRODUCTION_WEB=$NAME-master-web
-CONTAINER_PRODUCTION_DB=$NAME-master-db
+CONTAINER_MASTER_WEB=$NAME-master-web
+CONTAINER_MASTER_DB=$NAME-master-db
 CONTAINER_WEB=$NAME-$BRANCH-web
 CONTAINER_DB=$NAME-$BRANCH-db
 MYSQL_USER=wordpress
 MYSQL_NAME=wordpress
+MYSQL_HOST="$CONTAINER_DB:3306"
+
+
+if [ "$IS_HTTPS" = "yes" ];then
+
+    HTTP="https"
+
+else
+
+    HTTP="http"
+
+fi
 
 if [[ "$HOST_TYPE" = "port" ]]; then
 
@@ -46,18 +57,18 @@ if [[ "${BRANCH}" = "develop" ]];then
 
     assertAllowed URL_DEVELOP URL_MASTER
 
-    read -p "CCopy html from production to develo (Y/n)?" choice
+    read -p "Copy html from production to develop (Y/n)?" choice
     case $choice in
-       Y|y ) htmlMasterToDevelop $NAME $URL_DEVELOP $URL_MASTER $MYSQL_USER $MYSQL_PASSWORD $MYSQL_NAME$;;
-       * ) echo "Skipping";;
+       "N|n" ) echo "Skipping";;
+       * ) htmlMasterToDevelop $CONTAINER_MASTER_WEB $URL_DEVELOP $URL_MASTER $MYSQL_USER $MYSQL_PASSWORD $MYSQL_NAME $MYSQL_HOST;;
+
     esac
 fi
 
 cp sample.docker-compose.yml docker-compose.yml
 
-replace "CONTAINER_DB,CONTAINER_WEB,VIRTUAL_HOST,MYSQL_NAME,MYSQL_USER,MYSQL_PASSWORD,NETWORK,PORT_WEB,PORT_MAPPING_WEB,VIRTUAL_HOST" docker-compose.yml
-
-
+replace "CONTAINER_DB,CONTAINER_WEB,VIRTUAL_HOST,MYSQL_NAME,MYSQL_USER,MYSQL_PASSWORD" docker-compose.yml
+replace "MYSQL_HOST,NETWORK,PORT_WEB,PORT_MAPPING_WEB,VIRTUAL_HOST" docker-compose.yml
 
 docker rmi $(docker images --quiet --filter "dangling=true")
 
@@ -69,11 +80,20 @@ docker-compose --compatibility up -d
 echo "Wait 10 seconds for db to start"
 sleep 10
 
+#   $1 -> Container master web
+#   $2 -> Container master db
+#   $3 -> Container develop db
+#   $4 -> Url of wordpress site in master container
+#   $5 -> Url of wordpress site in develop container
+#   $6 -> Wordpress database user develop
+#   $7 -> Wordpress database password develop
+#   $8 -> Wordpress database name develop
+
 if [[ "${BRANCH}" = "develop" ]];then
-    read -p "Clone production database to develo (Y/n)?" choice
+    read -p "Clone production database to develoo (Y/n)?" choice
     case ${choice} in
-       Y|y ) dbMasterToDevelop;;
-       * ) echo "Skipping";;
+        * ) dbMasterToDevelop $CONTAINER_MASTER_WEB $CONTAINER_MASTER_DB $CONTAINER_DB $URL_DEVELOP $URL_MASTER $MYSQL_USER $MYSQL_PASSWORD $MYSQL_NAME $HTTP;;
+        N|n ) echo "Skipping";;
     esac
 fi
 
@@ -86,6 +106,7 @@ echo "*************"
 echo ""
 echo "CONTAINER WEB:$CONTAINER_WEB"
 echo "CONTAINER DB:$CONTAINER_DB"
+echo "MYSQL_HOST: $MYSQL_HOST"
 echo "MYSQL_NAME: $MYSQL_NAME"
 echo "MYSQL_USER: $MYSQL_USER"
 echo "MYSQL_PASSWORD: $MYSQL_PASSWORD"

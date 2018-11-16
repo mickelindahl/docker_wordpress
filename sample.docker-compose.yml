@@ -26,7 +26,7 @@ services:
      {PORT_WEB}
         {PORT_MAPPING_WEB}
      environment:
-       WORDPRESS_DB_HOST: {CONTAINER_DB}:3306
+       WORDPRESS_DB_HOST: {MYSQL_HOST}
        WORDPRESS_DB_USER: wordpress
        WORDPRESS_DB_NAME: wordpress
        WORDPRESS_DB_PASSWORD: {MYSQL_PASSWORD}
