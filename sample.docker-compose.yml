@@ -17,7 +17,7 @@ services:
    {CONTAINER_WEB}:
      links:
        - {CONTAINER_DB}
-     image: wordpress:4.9
+     image: wordpress:5.2
      container_name: {CONTAINER_WEB}
      volumes:
        - ./html:/var/www/html

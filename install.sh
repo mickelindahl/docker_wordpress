@@ -60,17 +60,30 @@ if [[ "${BRANCH}" = "develop" ]];then
 
     read -p "Copy html from production to develop (Y/n)?" choice
     case $choice in
-       "N|n" ) echo "Skipping";;
+       N|n ) echo "Skipping";;
        * ) htmlMasterToDevelop $CONTAINER_MASTER_WEB $URL_DEVELOP $URL_MASTER $MYSQL_USER $MYSQL_PASSWORD $MYSQL_NAME $MYSQL_HOST;;
 
     esac
+
+    MYSQL_PATH=$(pwd)/mysql
+
+    read -p "Remove mysql db data in $MYSQL_PATH (Y/n)?" choice
+    case $choice in
+       N|n ) echo "Skipping";;
+       * ) sudo rm -rf $MYSQL_PATH;;
+
+    esac
+
 fi
 
-cp sample.docker-compose.yml docker-compose.yml
+
+
+sudo cp sample.docker-compose.yml docker-compose.yml
 
 replace "CONTAINER_DB,CONTAINER_WEB,VIRTUAL_HOST,MYSQL_NAME,MYSQL_USER,MYSQL_PASSWORD" docker-compose.yml
 replace "MYSQL_HOST,NETWORK,PORT_WEB,PORT_MAPPING_WEB,VIRTUAL_HOST" docker-compose.yml
 
+sudo chown apps:apps docker-compose.yml
 
 docker rmi $(docker images --quiet --filter "dangling=true")
 

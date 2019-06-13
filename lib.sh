@@ -141,7 +141,7 @@ replaceUrlInDb(){
    for i in "${cmds[@]}"; do
 
       echo "Executing in bd: $i"
-      docker exec -i $CONTAINER /usr/bin/mysql -u $DB_USER --password=$DB_PASS  $DB_NAME <<< "$i"
+      sudo docker exec -i $CONTAINER /usr/bin/mysql -u $DB_USER --password=$DB_PASS  $DB_NAME <<< "$i"
 
    done
 }
@@ -193,18 +193,22 @@ dbMasterToDevelop(){
 
    fi
 
+   #MYSQL_PATH=$(pwd)/mysql
+   # read -p "Remove $MYSQL_PATH [Press enter to continue]"
+   #sudo rm $MYSQL_PATH
+
    read -p "Migrate db from $CONTAINER_MASTER_DB [Press enter to continue]"
 
    # Migrate master DB
-   docker exec ${CONTAINER_MASTER_DB} /usr/bin/mysqldump -u ${MASTER_DB_USER} --password=${MASTER_DB_PASS} ${MASTER_DB_NAME} > ${BACKUP_FILE}
+   sudo docker exec ${CONTAINER_MASTER_DB} /usr/bin/mysqldump -u ${MASTER_DB_USER} --password=${MASTER_DB_PASS} ${MASTER_DB_NAME} > ${BACKUP_FILE}
 
    SKIP=""
    read -p "Add backup to $CONTAINER_DEVELOP_DB [Press enter to continue]"
-   cat $BACKUP_FILE | docker exec -i $CONTAINER_DEVELOP_DB /usr/bin/mysql -u $DEVELOP_DB_USER --password=$DEVELOP_DB_PASS $DEVELOP_DB_NAME
+   sudo cat $BACKUP_FILE | docker exec -i $CONTAINER_DEVELOP_DB /usr/bin/mysql -u $DEVELOP_DB_USER --password=$DEVELOP_DB_PASS $DEVELOP_DB_NAME
 
    echo "Removing $BACKUP_FILE"
    read -p "[Press enter to continue]"
-   rm $BACKUP_FILE
+   sudo rm $BACKUP_FILE
 
    echo "$DEVELOP_DB $DEVELOP_DB_USER $DEVELOP_DB_PASS $DEVELOP_DB_NAME $URL_MASTER $URL_DEVELOP"
 
@@ -233,19 +237,20 @@ htmlMasterToDevelop(){
    DB_NAME=$6
    DB_HOST=$7
 
-   DEVELOP_HTML_PATH=./html
+   DEVELOP_HTML_PATH=$(pwd)/html/
+   DEVELOP_PATH=$(pwd)
+ 
    WP_CONFIG=./html/wp-config.php
 
    assertExists CONTAINER_MASTER_WEB DB_USER DB_PASS DB_NAME URL_DEVELOP URL_MASTER
 
-   read -p "Clear html dir $DEVELOP_THML_PATH [Press enter to continue]"
+   read -p "Clear html dir $DEVELOP_HTML_PATH [Press enter to continue]"
    sudo rm -rf $DEVELP_HTML_PATH
 
-   echo "Copy from html $CONTAINER_MASTER_WEB [Press emter to continue]"
-   docker cp $CONTAINER_MASTER_WEB:/var/www/html $DEVELOP_HTML_PATH
+   read -p "Copy html to dir $DEVELOP_PATH from$CONTAINER_MASTER_WEB [Press enter to continue]"
+   sudo docker cp $CONTAINER_MASTER_WEB:/var/www/html/ $DEVELOP_PATH
 
-   echo "Edit wp-config $WP_CONFIG"
-   read -p "Press enter to continue"
+   read -p "Edit wp-config $WP_CONFIG [Press enter to continue]"
 
    TMP=`grep -r "define('DB_NAME'" $WP_CONFIG`
    echo "Changing $TMP -> define('DB_NAME', '$DB_NAME' );"
@@ -287,7 +292,7 @@ replace(){
    for var in ${arr}; do
 
        val=$(echo $(eval echo \$$var))
-       sed -i "s#{$var}#${val}#g" docker-compose.yml
+       sudo sed -i "s#{$var}#${val}#g" docker-compose.yml
 
    done
 }
