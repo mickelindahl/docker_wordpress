@@ -13,7 +13,8 @@ fi
 # Add .env variables
 export $(cat .env | xargs)
 
-assertAllowed HOST_TYPE IS_HTTPS MYSQL_PASSWORD NAME NETWORK VIRTUAL_HOST PORT
+assertAllowed HOST_TYPE IS_HTTPS MYSQL_PASSWORD NAME NETWORK VIRTUAL_HOST PORT CPUS_WEB MEM_WEB CPUS_DB MEM_DB
+
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 CONTAINER_MASTER_WEB=$NAME-master-web
@@ -80,10 +81,12 @@ fi
 
 sudo cp sample.docker-compose.yml docker-compose.yml
 
+sudo chown apps:apps docker-compose.yml
+
 replace "CONTAINER_DB,CONTAINER_WEB,VIRTUAL_HOST,MYSQL_NAME,MYSQL_USER,MYSQL_PASSWORD" docker-compose.yml
 replace "MYSQL_HOST,NETWORK,PORT_WEB,PORT_MAPPING_WEB,VIRTUAL_HOST" docker-compose.yml
+replace "CPUS_WEB MEM_WEB CPUS_DB MEM_DB" docker-compose.yml
 
-sudo chown apps:apps docker-compose.yml
 
 docker rmi $(docker images --quiet --filter "dangling=true")
 
@@ -96,10 +99,10 @@ echo "Wait 10 seconds for db to start"
 sleep 10
 
 if [[ "${BRANCH}" = "develop" ]];then
-    read -p "Clone production database to develoo (Y/n)?" choice
+    read -p "Clone production database to develop (Y/n)?" choice
     case ${choice} in
-        * ) dbMasterToDevelop $CONTAINER_MASTER_WEB $CONTAINER_MASTER_DB $CONTAINER_DB $URL_DEVELOP $URL_MASTER $MYSQL_USER $MYSQL_PASSWORD $MYSQL_NAME $HTTP;;
         N|n ) echo "Skipping";;
+        * ) dbMasterToDevelop $CONTAINER_MASTER_WEB $CONTAINER_MASTER_DB $CONTAINER_DB $URL_DEVELOP $URL_MASTER $MYSQL_USER $MYSQL_PASSWORD $MYSQL_NAME $HTTP;;
     esac
 fi
 
