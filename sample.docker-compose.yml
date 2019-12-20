@@ -14,10 +14,16 @@ services:
        MYSQL_PASSWORD: {MYSQL_PASSWORD}
      networks:
         - {NETWORK}
+#     deploy:
+#       resources:
+#         limits:
+#           cpus: '{CPUS_WEB}'
+#           memory: {MEM_WEB}
+
    {CONTAINER_WEB}:
      links:
        - {CONTAINER_DB}
-     image: wordpress:4.9
+     image: wordpress:5.3
      container_name: {CONTAINER_WEB}
      volumes:
        - ./html:/var/www/html
@@ -33,7 +39,11 @@ services:
        {VIRTUAL_HOST}
      networks:
         - {NETWORK}
-
+#     deploy:
+#       resources:
+#         limits:
+#           cpus: '{CPUS_DB}'
+#           memory: {MEM_DB}
 networks:
   {NETWORK}:
      external: true
